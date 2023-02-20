@@ -1,6 +1,6 @@
 import torch
 from datasets.dataset_karateclub import KarateDataset
-from models.model_karateclub import Net
+from models.GCN_basic import Net
 import torch.nn.functional as F
 
 class Main():
