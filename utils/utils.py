@@ -30,4 +30,8 @@ def returnEmbeddings():
     scale = StandardScaler()
     embeddings_reshaped = embeddings.reshape(-1, 1)
     embeddings = scale.fit_transform(embeddings_reshaped)
-    return G, labels, edge_index, embeddings
+
+    # let us also create the adjacency matrix
+    adj_t = nx.to_numpy_array(G)
+
+    return G, labels, edge_index, embeddings, adj_t

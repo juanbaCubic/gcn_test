@@ -12,7 +12,7 @@ class KarateDataset(InMemoryDataset):
         super(KarateDataset, self).__init__('.', transform, None , None)
 
         # labels, edge_index, embeddings
-        G, labels, edge_index, embeddings = returnEmbeddings()
+        G, labels, edge_index, embeddings, adj_t = returnEmbeddings()
 
         # generate data for the dataset
         data = Data(edge_index=edge_index)
@@ -26,6 +26,8 @@ class KarateDataset(InMemoryDataset):
         data.y = y.clone().detach()
 
         data.num_classes = 2
+
+        data.adj_t = adj_t
 
         # splitting the data into train, validation and test
         X_train, X_test, y_train, y_test = train_test_split(pd.Series(list(G.nodes())),

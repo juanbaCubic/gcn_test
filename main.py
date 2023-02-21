@@ -1,10 +1,16 @@
 import torch
 from datasets.dataset_karateclub import KarateDataset
 from models.GCN_basic import Net
+from models.GraphSAGE_basic import GraphSAGE
 import torch.nn.functional as F
 
+import os
+import argparse
+
 class Main():
-    def __init__(self, debug=False):
+    def __init__(self, train_config, debug=False):
+        self.train_config = train_config
+
         torch.manual_seed(42)
         self.optimizer_name = "Adam"
         self.lr = 1e-1
@@ -12,10 +18,17 @@ class Main():
 
         self.dataset = KarateDataset()
         self.data = self.dataset[0]
-        self.model = Net(self.data).to(self.device)
+
+        self.epochs = self.train_config['epochs']
+        self.model_name = self.train_config['model']
+        #TODO mirar lo de usar el getattr
+        #self.model = getattr(torch.optim, self.optimizer_name)
+        if self.model_name == 'gcn':
+            self.model = Net(self.data).to(self.device)
+        elif self.model_name == 'graphsage':
+            self.model = GraphSAGE(self.data).to(self.device)
 
         self.optimizer = getattr(torch.optim, self.optimizer_name)(self.model.parameters(), lr=self.lr)
-        self.epochs = 200
 
     def train(self):
         self.model.train()
@@ -47,7 +60,18 @@ class Main():
 
 if __name__ == "__main__":
 
+    parser = argparse.ArgumentParser()
 
-    main = Main(debug=False)
+    parser.add_argument('-epochs', help='train epoch', type = int, default=200)
+    parser.add_argument('-model', help='training model', type = str, default='graphsage')
 
+    args = parser.parse_args()
+
+    train_config = {
+        'epochs': args.epochs,
+        'model': args.model
+    }
+
+
+    main = Main(train_config, debug=False)
     main.run()
