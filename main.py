@@ -1,11 +1,11 @@
 import torch
 from datasets.dataset_karateclub import KarateDataset
 import models
+import utils
 #from models.models import Net, GraphSAGE
 #from models.GraphSAGE_basic import GraphSAGE
-import torch.nn.functional as F
+#import torch.nn.functional as F
 
-import os
 import argparse
 
 class Main():
@@ -26,10 +26,24 @@ class Main():
         self.optimizer = getattr(torch.optim, self.optimizer_name)(self.model.parameters(), lr=self.lr)
 
     def train(self):
+        loss_operator = torch.nn.NLLLoss()
         self.model.train()
-        self.optimizer.zero_grad()
-        F.nll_loss(self.model()[self.data.train_mask], self.data.y[self.data.train_mask]).backward()
-        self.optimizer.step()
+        for epoch in range(1, self.epochs):
+            self.optimizer.zero_grad()
+            loss = loss_operator(self.model()[self.data.train_mask], self.data.y[self.data.train_mask])
+            acc = utils.acc_operator(self.model()[self.data.train_mask].argmax(dim=1), self.data.y[self.data.train_mask])
+            loss.backward()
+            self.optimizer.step()
+
+            # Validation
+            val_loss = loss_operator(self.model()[self.data.val_mask], self.data.y[self.data.val_mask])
+            val_acc = utils.acc_operator(self.model()[self.data.val_mask].argmax(dim=1), self.data.y[self.data.val_mask])
+
+            # Print metrics every 10 epochs
+            if(epoch % 10 == 0):
+                print(f'Epoch {epoch:>3} | Train Loss: {loss:.3f} | Train Acc: '
+                      f'{acc*100:>6.2f}% | Val Loss: {val_loss:.2f} | '
+                      f'Val Acc: {val_acc*100:.2f}%')
 
     @torch.no_grad()
     def test(self):
@@ -44,8 +58,7 @@ class Main():
         return acc1, acc
 
     def run(self):
-        for epoch in range(1, self.epochs):
-            self.train()
+        self.train()
         train_acc, test_acc = self.test()
         print('#' * 70)
         print('Train Accuracy: %s' % train_acc)
@@ -57,7 +70,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-epochs', help='train epoch', type = int, default=200)
+    parser.add_argument('-epochs', help='train epoch', type = int, default=800)
     parser.add_argument('-model', help='training model', type = str, default='GraphSAGE')
 
     args = parser.parse_args()

@@ -35,3 +35,7 @@ def returnEmbeddings():
     adj_t = nx.to_numpy_array(G)
 
     return G, labels, edge_index, embeddings, adj_t
+
+def acc_operator(pred_y, y):
+    """Calculate accuracy."""
+    return ((pred_y == y).sum() / len(y)).item()

@@ -27,21 +27,34 @@ class KarateDataset(InMemoryDataset):
 
         data.num_classes = 2
 
+        train_ratio = 0.75
+        validation_ratio = 0.15
+        test_ratio = 0.10
+
         # splitting the data into train, validation and test
         X_train, X_test, y_train, y_test = train_test_split(pd.Series(list(G.nodes())),
                                                             pd.Series(labels),
-                                                            test_size=0.30,
+                                                            test_size= 1 - train_ratio,
                                                             random_state=42)
+
+        X_train, X_val, y_train, y_val = train_test_split(pd.Series(list(G.nodes())),
+                                                            pd.Series(labels),
+                                                            test_size=test_ratio/(test_ratio + validation_ratio),
+                                                            random_state=42)
+
         n_nodes = G.number_of_nodes()
 
 
         # create train and test masks for data
         train_mask = torch.zeros(n_nodes, dtype=torch.bool)
         test_mask = torch.zeros(n_nodes, dtype=torch.bool)
+        val_mask = torch.zeros(n_nodes, dtype=torch.bool)
         train_mask[X_train.index] = True
         test_mask[X_test.index] = True
+        val_mask[X_val.index] = True
         data['train_mask'] = train_mask
         data['test_mask'] = test_mask
+        data['val_mask'] = val_mask
 
         self.data, self.slices = self.collate([data])
 
