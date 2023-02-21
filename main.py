@@ -1,7 +1,8 @@
 import torch
 from datasets.dataset_karateclub import KarateDataset
-from models.GCN_basic import Net
-from models.GraphSAGE_basic import GraphSAGE
+import models
+#from models.models import Net, GraphSAGE
+#from models.GraphSAGE_basic import GraphSAGE
 import torch.nn.functional as F
 
 import os
@@ -21,13 +22,7 @@ class Main():
 
         self.epochs = self.train_config['epochs']
         self.model_name = self.train_config['model']
-        #TODO mirar lo de usar el getattr
-        #self.model = getattr(torch.optim, self.optimizer_name)
-        if self.model_name == 'gcn':
-            self.model = Net(self.data).to(self.device)
-        elif self.model_name == 'graphsage':
-            self.model = GraphSAGE(self.data).to(self.device)
-
+        self.model = getattr(models, self.model_name)(self.data).to(self.device)
         self.optimizer = getattr(torch.optim, self.optimizer_name)(self.model.parameters(), lr=self.lr)
 
     def train(self):
@@ -63,7 +58,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-epochs', help='train epoch', type = int, default=200)
-    parser.add_argument('-model', help='training model', type = str, default='graphsage')
+    parser.add_argument('-model', help='training model', type = str, default='GraphSAGE')
 
     args = parser.parse_args()
 

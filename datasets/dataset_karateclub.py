@@ -27,8 +27,6 @@ class KarateDataset(InMemoryDataset):
 
         data.num_classes = 2
 
-        data.adj_t = adj_t
-
         # splitting the data into train, validation and test
         X_train, X_test, y_train, y_test = train_test_split(pd.Series(list(G.nodes())),
                                                             pd.Series(labels),
