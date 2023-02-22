@@ -1,5 +1,5 @@
 import torch
-from datasets.dataset_karateclub import KarateDataset
+from datasets.datasets import KarateDataset
 import models
 import utils
 #from models.models import Net, GraphSAGE

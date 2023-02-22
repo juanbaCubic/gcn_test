@@ -3,15 +3,15 @@ import torch.nn.functional as F
 from torch_geometric.nn import GCNConv, SAGEConv, GATv2Conv
 import torch
 
-# GCN model with 2 layers
+# GCN model with 2 layers, changing hidden number of layers to 32
 class GCN(nn.Module):
     def __init__(self, data):
         super(GCN, self).__init__()
 
         self.data = data
 
-        self.conv1 = GCNConv(self.data.num_features, 16)
-        self.conv2 = GCNConv(16, int(self.data.num_classes))
+        self.conv1 = GCNConv(self.data.num_features, 32)
+        self.conv2 = GCNConv(32, int(self.data.num_classes))
 
     def forward(self):
         x, edge_index = self.data.x, self.data.edge_index
